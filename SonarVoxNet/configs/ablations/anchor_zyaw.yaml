@@ -1,0 +1,7 @@
+inherits: ../main_spconv_6d_l1.yaml
+experiment:
+  name: ablation_anchor_zyaw
+model:
+  detection_head: anchor
+  rotation_target: zyaw
+  rotation_representation: 6d
