@@ -19,6 +19,5 @@ The release checklist is:
 - [ ] Run `pytest` and one end-to-end smoke test in a clean environment.
 - [ ] Select an open-source license and replace the draft license notice.
 
-Modal is optional infrastructure.  A reviewer must be able to prepare data,
-train, and evaluate without a Modal account; the cloud launcher may only invoke
-the same public commands.
+The public training and evaluation path must not depend on laboratory-specific
+infrastructure, credentials, or filesystem paths.

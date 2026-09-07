@@ -16,8 +16,8 @@ wandb/
 *.log
 
 # Data and derived caches
-data/
-cache/
+/data/
+/cache/
 *.npz
 *.npy
 *.tar
