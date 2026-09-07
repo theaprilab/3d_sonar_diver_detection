@@ -8,6 +8,7 @@ import torch
 from torch import nn
 from torch.nn import functional as functional
 
+from sonarvoxnet.models.heads import AnchorHead
 from sonarvoxnet.models.rotation import CHANNELS
 
 
@@ -95,11 +96,22 @@ class SparseMiddleEncoder(nn.Module):
 
 
 class BEVBackbone(nn.Module):
-    """A three-scale BEV backbone shared by the proposed and head ablation models."""
+    """BEV convolutional block shared by the proposed and ablation models.
+
+    The first convolution is lazy because the collapsed vertical dimension is
+    determined by the voxel grid and middle encoder, rather than by the head.
+    """
 
     def __init__(self, channels: int = 128) -> None:
         super().__init__()
-        self.block = nn.Sequential(nn.Conv2d(channels, channels, 3, padding=1), nn.BatchNorm2d(channels), nn.ReLU(), nn.Conv2d(channels, channels, 3, padding=1), nn.BatchNorm2d(channels), nn.ReLU())
+        self.block = nn.Sequential(
+            nn.LazyConv2d(channels, 3, padding=1),
+            nn.BatchNorm2d(channels),
+            nn.ReLU(),
+            nn.Conv2d(channels, channels, 3, padding=1),
+            nn.BatchNorm2d(channels),
+            nn.ReLU(),
+        )
 
     def forward(self, features: torch.Tensor) -> torch.Tensor:
         return self.block(features)
@@ -126,15 +138,28 @@ class CenterHead(nn.Module):
 class SonarVoxNet(nn.Module):
     """The paper model; sparse is the default and dense is an explicit ablation."""
 
-    def __init__(self, middle_encoder: str = "sparse", rotation_representation: str = "6d") -> None:
+    def __init__(
+        self,
+        middle_encoder: str = "sparse",
+        detection_head: str = "center",
+        rotation_representation: str = "6d",
+        num_anchors: int = 2,
+    ) -> None:
         super().__init__()
         if middle_encoder not in {"sparse", "dense"}:
             raise ValueError("middle_encoder must be 'sparse' or 'dense'.")
+        if detection_head not in {"center", "anchor"}:
+            raise ValueError("detection_head must be 'center' or 'anchor'.")
         self.vfe = VFE()
         self.middle_encoder_name = middle_encoder
         self.middle = SparseMiddleEncoder() if middle_encoder == "sparse" else DenseMiddleEncoder()
         self.bev_backbone = BEVBackbone()
-        self.head = CenterHead(rotation_representation=rotation_representation)
+        self.head_name = detection_head
+        self.head = (
+            CenterHead(rotation_representation=rotation_representation)
+            if detection_head == "center"
+            else AnchorHead(num_anchors=num_anchors, rotation_representation=rotation_representation)
+        )
 
     def forward(self, voxel_features: torch.Tensor, num_points: torch.Tensor, coordinates: torch.Tensor, spatial_shape: tuple[int, int, int], batch_size: int) -> dict[str, torch.Tensor]:
         voxel_features = self.vfe(voxel_features, num_points)

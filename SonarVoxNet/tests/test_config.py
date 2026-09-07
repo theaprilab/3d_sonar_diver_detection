@@ -15,3 +15,13 @@ def test_main_recipe_is_the_sparse_6d_l1_model():
 def test_main_recipe_uses_a_fixed_training_recipe():
     config = load_config(ROOT / "configs/main_spconv_6d_l1.yaml")
     assert config["training"]["optimizer"] == "adamw"
+
+
+def test_head_backbone_recipes_change_only_their_named_condition():
+    anchor = load_config(ROOT / "configs/ablations/anchor_zyaw.yaml")
+    center = load_config(ROOT / "configs/ablations/center_zyaw.yaml")
+    dense = load_config(ROOT / "configs/ablations/dense_middle_6d_l1.yaml")
+    assert anchor["model"]["detection_head"] == "anchor"
+    assert anchor["model"]["rotation_target"] == center["model"]["rotation_target"] == "zyaw"
+    assert dense["model"]["middle_encoder"] == "dense"
+    assert dense["model"]["detection_head"] == "center"

@@ -14,7 +14,8 @@ Included recipes:
 
 Implementation candidates are under the sibling `reference_source/` directory:
 the PointPillars head kit, anchor assignment and decoding utilities, dense and
-sparse middle encoders, and the reviewed target/loss files. Migrate them into
-`src/sonarvoxnet/models/`, `targets/`, and `training/` with English comments
-and focused tests. Do not add raw caches, checkpoints, launch logs, or internal
-analysis scripts.
+sparse middle encoders, and the reviewed target/loss files. The public branch
+implementation is self-contained in `src/sonarvoxnet/models/` and
+`src/sonarvoxnet/training/`; see `docs/HEAD_BACKBONE_PROTOCOL.md` for the
+controlled variables. Do not add raw caches, checkpoints, launch logs, or
+internal analysis scripts.
