@@ -1,0 +1,6 @@
+inherits: none.yaml
+experiment:
+  name: augmentation_flip_x
+augmentation:
+  flip_x_probability: 0.5
+  physical_validity: requires_ablation_justification

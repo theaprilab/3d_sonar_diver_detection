@@ -1,0 +1,6 @@
+inherits: none.yaml
+experiment:
+  name: augmentation_per_box
+augmentation:
+  per_box_rotation_degrees: 18.0
+  per_box_translation_std: 1.0

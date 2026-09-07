@@ -1,0 +1,6 @@
+inherits: none.yaml
+experiment:
+  name: augmentation_global_yaw
+augmentation:
+  global_yaw_degrees: 45.0
+  physical_validity: requires_ablation_justification

@@ -1,0 +1,5 @@
+inherits: per_box_flip_scale.yaml
+experiment:
+  name: augmentation_per_box_flip_scale_translate
+augmentation:
+  translation_std: [0.2, 0.2, 0.1]

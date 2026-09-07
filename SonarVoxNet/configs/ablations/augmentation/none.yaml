@@ -1,0 +1,12 @@
+inherits: ../../main_spconv_6d_l1.yaml
+experiment:
+  name: augmentation_none
+augmentation:
+  per_box_rotation_degrees: 0.0
+  per_box_translation_std: 0.0
+  flip_x_probability: 0.0
+  flip_y_probability: 0.0
+  scale_range: [1.0, 1.0]
+  translation_std: [0.0, 0.0, 0.0]
+  global_yaw_degrees: 0.0
+  gt_sampling: false

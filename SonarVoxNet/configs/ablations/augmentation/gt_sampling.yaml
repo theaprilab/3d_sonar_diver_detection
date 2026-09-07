@@ -1,0 +1,8 @@
+inherits: per_box_flip_scale_translate.yaml
+experiment:
+  name: augmentation_gt_sampling
+augmentation:
+  gt_sampling:
+    enabled: true
+    target_objects: 4
+    max_attempts: 20

@@ -1,0 +1,5 @@
+inherits: per_box_flip.yaml
+experiment:
+  name: augmentation_per_box_flip_scale
+augmentation:
+  scale_range: [0.95, 1.05]

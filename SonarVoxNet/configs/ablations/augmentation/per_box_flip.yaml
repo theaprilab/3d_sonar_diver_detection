@@ -1,0 +1,5 @@
+inherits: per_box.yaml
+experiment:
+  name: augmentation_per_box_flip
+augmentation:
+  flip_y_probability: 0.5
