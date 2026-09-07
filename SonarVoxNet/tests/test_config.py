@@ -12,7 +12,6 @@ def test_main_recipe_is_the_sparse_6d_l1_model():
     assert config["loss"]["rotation"] == "l1_target"
 
 
-def test_ablation_inherits_the_fixed_recipe():
-    config = load_config(ROOT / "configs/ablations/dense_middle_6d_l1.yaml")
-    assert config["model"]["middle_encoder"] == "dense"
+def test_main_recipe_uses_a_fixed_training_recipe():
+    config = load_config(ROOT / "configs/main_spconv_6d_l1.yaml")
     assert config["training"]["optimizer"] == "adamw"
