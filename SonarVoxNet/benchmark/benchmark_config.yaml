@@ -1,0 +1,87 @@
+# =============================================================================
+# 3D Sonar Diver Detection — 공통 벤치마크 config (팀 공유)
+# 모든 baseline(VoxelNet/SECOND/VoxelNeXt/CenterPoint/PointPillars/TriBand-BEV)과
+# ours가 동일하게 따라야 하는 데이터 지오메트리 / split / eval / 학습 규약.
+# 프레임워크(OpenPCDet / ultralytics / 자체 코드)에 맞게 값만 옮겨 쓰면 된다.
+# 근거: VoxelNet/model/config.py (ours 확정값)와 동일.
+# =============================================================================
+
+dataset:
+  name: data_final          # 36-scene, forward-looking 3D sonar
+  num_classes: 1
+  class_names: [diver]
+  point_features: [x, y, z, intensity]   # intensity = 4th field(합성 proxy), INPUT dim=4
+
+# --- ROI / 좌표계 (전 방법 공통, 반드시 동일) ---------------------------------
+# 근거: 모든 GT 박스 + 점 데이터 90%가 이 ROI 내부. 연산 효율 위해 이 범위로 grid 설정.
+roi:
+  # [x_min, y_min, z_min, x_max, y_max, z_max]  (meter)
+  point_cloud_range: [0.0, -5.0, -2.5, 12.0, 5.0, 2.5]
+  # x = forward(0~12m), y = left(±5m), z = up(±2.5m)
+
+# --- 입력 인코딩 (계열별; ROI는 위에서 공통) ---------------------------------
+voxel_family:               # VoxelNet / SECOND / VoxelNeXt / CenterPoint
+  voxel_size: [0.1, 0.1, 0.5]     # (dx,dy,dz) m
+  grid_size:  [120, 100, 10]      # (W,H,D) = range/voxel_size
+  max_points_per_voxel: 35
+  max_voxels: 8000
+pillar_family:              # PointPillars (z를 기둥으로 collapse = 방법 정체성)
+  pillar_size: [0.1, 0.1]         # x-y만; z=full range
+  grid_size:  [120, 100, 1]
+projection:                 # TriBand-BEV (3-band BEV image; 자기 인코딩)
+  note: "동일 ROI 위에 자기 band-projection 사용. 해상도는 논문/구현 native."
+
+# --- Anchor (anchor 기반 방법: VoxelNet/SECOND/PointPillars-anchor) -----------
+# 다이버 실측 통계에서 산출(KITTI car anchor 대체 = 불가피한 데이터 적응).
+anchor:
+  size: [1.57, 1.02, 1.13]        # (length=x, width=y, height=z) m, 실측 평균
+  z_center: 0.12                  # 실측 centroid z 평균
+  rotations_rad: [0.0, 1.5707963]  # 0, pi/2
+  pos_iou_thresh: 0.6
+  neg_iou_thresh: 0.45
+
+# --- Split (전 방법 공통, scene 단위) ----------------------------------------
+split:
+  type: scene-level               # 프레임 아닌 scene 단위(누수 방지)
+  ref: splits.json                # ★팀 공유 split 파일(동일본 사용)
+  seeds: [0, 1]                   # 2 seed 기본(여유 시 3)
+  eval_split: test_full           # 빈 배경 프레임 포함(FP 정직 측정). 표엔 split 명시.
+
+# --- 학습 규약 --------------------------------------------------------------
+training:
+  checkpoint_selection: "val AP3D @ IoU 0.35 기준 best epoch"   # 전 방법 공통
+  budget: "데이터셋에 맞춘 epoch + val-기반 best.pt (원 데이터셋 HP 리터럴 금지)"
+  augmentation_policy:
+    # ★고정 forward-looking FOV(±45°)라 360°-LiDAR aug는 물리적으로 무효 → 전 방법 동일 적용
+    global_rotation: EXCLUDED      # 반드시 전 방법 제외(FOV 밖으로 물체 이탈)
+    flip_x_frontback: EXCLUDED     # 전방만 관측 → 전후 반전 무효
+    flip_y_leftright: allowed      # FOV 좌우 대칭
+    global_scaling: allowed        # 예: [0.95, 1.05]
+    translation: allowed
+    gt_sampling: allowed           # DB copy-paste (range-일관 권장)
+  rotation_target: "각 논문 native yaw (VoxelNet Δθ / CenterPoint·SECOND sin·cos / TriBand OBB θ). baseline=yaw-only. ours만 full-3D(6D)."
+
+# --- 평가 (전 방법 공통 eval harness로 통일) ---------------------------------
+eval:
+  matching: "3D OBB IoU, confidence 내림차순 greedy"
+  ap_iou_thresholds: [0.3, 0.35, 0.4]   # mAP = 이 셋 평균(단일 클래스). 참고로 0.25/0.5도 보고.
+  score_decode_thresh: 0.3
+  tp_iou_for_error_metrics: 0.3         # ATE/ASE/AOE/tilt 계산용 TP 매칭
+  report_metrics: [AP3D@0.3, AP3D@0.35, AP3D@0.4, AP3D@0.5, BEV_AP@0.35,
+                   ATE_m, ASE, AOE_yaw_deg, AOE3D_deg, tilt_deg, SDS]
+  harness: "VoxelNet/model/eval_extra_metrics.py + compute_sds.py (공통 사용)"
+
+# --- 종합 점수 SDS (Sonar/Diver Detection Score) -----------------------------
+sds:
+  formula: "SDS = 1/(w+3) * [ w*mAP + (1-min(1,ATE/1.0)) + (1-min(1,ASE)) + (1-min(1, AOE3D_rad/(pi/2))) ]"
+  w: 3                            # 검출 비중 50%
+  mAP: "mean(AP3D@0.3, AP3D@0.35, AP3D@0.4)"
+  ate_norm_m: 1.0
+  aoe3d_norm_rad: 1.5707963       # pi/2 (90deg)
+  note: "방향 항은 yaw-only AOE 아닌 full-3D geodesic(AOE3D). velocity/attribute 없어 AVE/AAE 제거."
+
+# --- 예측 공유 포맷 (체크포인트 대신 이 포맷으로 예측을 뽑아 공유) -----------
+prediction_format:
+  note: "프레임워크가 달라 체크포인트 직접 eval 불가 → 각자 추론해 아래 포맷으로 dump, 공통 eval에 투입."
+  per_frame: "{ frame_id, boxes: [ {center:[x,y,z], dims:[l,w,h], rot: R3x3(또는 yaw), score} ] }"
+  gt_reference: "채점 GT는 항상 진짜 3D 회전(full R). baseline이 yaw만 내도 tilt/AOE3D는 GT 대비 계산됨."
