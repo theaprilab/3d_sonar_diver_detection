@@ -1,0 +1,22 @@
+experiment:
+  name: main_spconv_6d_l1
+  seed: 0
+model:
+  middle_encoder: sparse
+  detection_head: center
+  rotation_representation: 6d
+loss:
+  rotation: l1_target
+data:
+  point_cloud_range: [0.0, -5.0, -2.5, 12.0, 5.0, 2.5]
+  voxel_size: [0.1, 0.1, 0.5]
+  max_points_per_voxel: 35
+  max_voxels: 8000
+training:
+  batch_size: 4
+  epochs: 20
+  optimizer: adamw
+  learning_rate: 0.001
+  weight_decay: 0.01
+  scheduler: onecycle
+  gradient_clip_norm: 35.0

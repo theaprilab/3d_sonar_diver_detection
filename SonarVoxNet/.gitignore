@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.venv/
+
+# Training artifacts
+checkpoints/
+runs/
+outputs/
+wandb/
+*.pt
+*.pth
+*.ckpt
+*.log
+
+# Data and derived caches
+data/
+cache/
+*.npz
+*.npy
+*.tar
+*.tar.gz
+
+# IDE and operating-system files
+.DS_Store
+.idea/
+.vscode/

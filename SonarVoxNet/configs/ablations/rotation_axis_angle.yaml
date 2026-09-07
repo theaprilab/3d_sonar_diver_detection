@@ -1,0 +1,5 @@
+inherits: ../main_spconv_6d_l1.yaml
+experiment:
+  name: ablation_rotation_axis_angle
+model:
+  rotation_representation: axis_angle

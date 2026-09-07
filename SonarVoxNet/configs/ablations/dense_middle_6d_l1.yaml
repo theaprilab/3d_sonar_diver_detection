@@ -1,0 +1,5 @@
+inherits: ../main_spconv_6d_l1.yaml
+experiment:
+  name: ablation_dense_middle_6d_l1
+model:
+  middle_encoder: dense
