@@ -1,0 +1,7 @@
+inherits: ../main_spconv_6d_l1.yaml
+experiment:
+  name: ablation_rotation_9d
+model:
+  rotation_representation: 9d
+loss:
+  rotation: mse_target

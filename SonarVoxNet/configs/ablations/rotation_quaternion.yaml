@@ -1,0 +1,5 @@
+inherits: ../main_spconv_6d_l1.yaml
+experiment:
+  name: ablation_rotation_quaternion
+model:
+  rotation_representation: quaternion
