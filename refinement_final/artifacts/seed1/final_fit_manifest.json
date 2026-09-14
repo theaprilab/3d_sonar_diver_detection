@@ -1,0 +1,19 @@
+{
+  "final_fit_version": "all-val-final-fit-frozen-recipe-1",
+  "seed": 1,
+  "policy": "all-val-scenes-after-recipe-freeze",
+  "epoch": 10,
+  "scheduler_epochs": 20,
+  "fit_scenes": [
+    "scene_0009",
+    "scene_0019",
+    "scene_0049",
+    "scene_0064",
+    "scene_0075",
+    "scene_0090",
+    "scene_0092"
+  ],
+  "n_residual_pairs": 6138,
+  "temperature": 1.0341068506240845,
+  "test_split_read": false
+}
