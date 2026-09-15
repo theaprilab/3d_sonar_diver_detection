@@ -1,0 +1,12 @@
+{
+ "snapshot": "refinement-final-shared-module-v1",
+ "note": "SHA-256 of the numpy-only causal geometry refinement core in this directory.",
+ "algorithm_files": {
+  "training_free_filter.py": "3a8a13ec74165cee2fbb5e0baa7ab6f33cccf0f0a98e37cff4693419ee81624b",
+  "causal_bayesian_center.py": "ebad8d0030092196ad55ef15ab0746571e9a1a34899ac8b8b63f9392dd06e5c7",
+  "causal_rotation_imm.py": "e405ebfbd03eac40b6c5ea410b3620086f00b5a84649421840c28132f6de743e",
+  "bayesian_box_filter.py": "ad0bb955d4177c471b46a2dec82404dbd3b3e8df13cec753e648bcd967e4577a",
+  "geometry_ops.py": "327a6d75beee2a874554d80bf5f6d7f5013d0a12d380c76e11a5c6f60473d6cd",
+  "geometry_freeze.py": "8653b164465be29ba5f42ed8d98f30169e56649b51b28eab4bcd4859b97cfecf"
+ }
+}
